@@ -91,4 +91,6 @@ import Issue324
 import Assert
 import Issue377
 import Issue394
-
+import HaskellDataOpenImport
+import HaskellDataQualifiedImport
+import Map

@@ -96,6 +96,9 @@ import Issue324
 import Assert
 import Issue377
 import Issue394
+import HaskellDataOpenImport
+import HaskellDataQualifiedImport
+import Map
 
 {-# FOREIGN AGDA2HS
 import Issue14
@@ -189,4 +192,7 @@ import Issue324
 import Assert
 import Issue377
 import Issue394
+import HaskellDataOpenImport
+import HaskellDataQualifiedImport
+import Map
 #-}
