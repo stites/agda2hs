@@ -7,7 +7,7 @@ open import Haskell.Prim
 -- Tuples
 
 infix 3 _×_ _×_×_
-
+infix 2 _↔_
 infix -1 _,_ _,_,_
 
 record _×_ (a b : Type) : Type where
@@ -43,3 +43,7 @@ second f (x , y) = x , f y
 
 _***_ : (a → b) → (c → d) → a × c → b × d
 (f *** g) (x , y) = f x , g y
+
+-- logical equivalence for proofs
+_↔_ : (A : Set) (B : Set) -> Set
+A ↔ B = (A → B) × (B → A)
