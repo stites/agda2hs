@@ -10,9 +10,12 @@ import Control.Monad.State ( put, modify )
 import Data.Maybe ( isJust )
 import qualified Data.Map as M
 
+import System.FilePath ( (</>) )
+
 import qualified Language.Haskell.Exts as Hs
 
 import Agda.Compiler.Backend hiding ( Args )
+import Agda.Compiler.Common ( compileDir )
 
 import Agda.Syntax.Common
 import qualified Agda.Syntax.Concrete.Name as C
@@ -20,6 +23,7 @@ import Agda.Syntax.Internal
 import Agda.Syntax.Position ( noRange )
 import Agda.Syntax.Scope.Base
 import Agda.Syntax.Scope.Monad ( bindVariable, freshConcreteName, isDatatypeModule )
+import Agda.Syntax.TopLevelModuleName
 import Agda.Syntax.Common.Pretty ( prettyShow )
 import qualified Agda.Syntax.Common.Pretty as P
 
@@ -179,6 +183,25 @@ dropClassModule :: ModuleName -> C ModuleName
 dropClassModule m@(MName ns) = isClassModule m >>= \case
   True  -> dropClassModule $ MName $ init ns
   False -> return m
+
+-- Gets the path of the Haskell file to be generated
+moduleFileName :: Options -> TopLevelModuleName -> TCM FilePath
+moduleFileName opts name = do
+  outDir <- compileDir
+  return $ fromMaybe outDir (optOutDir opts) </> moduleNameToFileName name "hs"
+
+moduleParametersToDrop :: ModuleName -> C Telescope
+moduleParametersToDrop mod = do
+   reportSDoc "agda2hs.moduleParameters" 25 $ text "Getting telescope for" <+> prettyTCM mod
+   isDatatypeModule mod >>= \case
+     Just _ -> return EmptyTel
+     Nothing -> do
+       reportSDoc "agda2hs.moduleParameters" 25 $ text "Current context: " <+> (prettyTCM =<< getContext)
+       ctxArgs <- getContextArgs
+       reportSDoc "agda2hs.moduleParameters" 25 $ text "Context arguments: " <+> prettyTCM ctxArgs
+       sec <- lookupSection mod
+       reportSDoc "agda2hs.moduleParameters" 25 $ text "Module section: " <+> prettyTCM sec
+       return $ sec `apply` ctxArgs
 
 isUnboxRecord :: QName -> C (Maybe Strictness)
 isUnboxRecord q = do
